@@ -1,13 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package hangman;
 
 import java.util.HashMap;
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,40 +23,99 @@ public class HangmanPlay {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
+    Logger Log = Logger.getLogger(HangmanPlay.class.getName());
 
-    static void run() {
+    void play() {
+
+        System.out.println(ANSI_BLUE + "Welcome to Hangman!" + ANSI_RESET);
         HangmanLexicon mHangmanLexicon = new HangmanLexicon();
+        Scanner input = new Scanner(System.in);
+        String word;
+        StringBuilder guessWord;
+        HashMap<Character, ArrayList<Integer>> charIndex;
+        ArrayList<Character> guessed = new ArrayList<>();
+
         while (true) {
             try {
-                String word = mHangmanLexicon.getWord(new Random().nextInt(10));
-
+                boolean win = false;
+                word = mHangmanLexicon.getWord(new Random().nextInt(10));
                 //replace every character with "-"
-                String guessWord = word.replaceAll(".", "-");
-                HashMap<Character, ArrayList<Integer>> indexer = new HashMap<>();
-
-                /*Indexing the characters in word so that if user gusses the correct character
-                  we can directly replace the character in our guessWord string.
-                 */
-                for (int i = 0; i < word.length() - 1; i++) {
-                    if (indexer.containsKey(word.charAt(i))) {
-                        indexer.get(word.charAt(i)).add(i);
+                guessWord = new StringBuilder(word.replaceAll(".", "-"));
+                int tries = 8;
+                charIndex = indexer(word);
+                guessed.clear();
+                /*user input*/
+                while (tries != 0 && !win) {
+                    System.out.println("The word now looks like this: " + ANSI_PURPLE + guessWord + ANSI_RESET);
+                    System.out.println("You have " + ANSI_BLUE + tries + ANSI_RESET + " left.");
+                    System.out.println("Your guess? ");
+                    //trim the leading and trailing spaces
+                    String guess = input.nextLine().trim();
+                    //check if user provided more then one character
+                    if (guess.length() > 1) {
+                        System.out.println(ANSI_RED + "Please input only one letter at a time." + ANSI_RESET);
                     } else {
-                        ArrayList<Integer> temp = new ArrayList<>();
-                        temp.add(i);
-                        indexer.put(word.charAt(i), temp);
+                        char guessedChar = guess.toUpperCase().charAt(0);
+                        if (!charIndex.containsKey(guessedChar)) {
+                            --tries;
+                            System.out.println(ANSI_RED + "There are no " + guessedChar + "'s in word." + ANSI_RESET);
+                        } else {
+                            if (!guessed.contains(guessedChar)) {
+                                for (Integer i : charIndex.get(guessedChar)) {
+                                    guessWord.setCharAt(i, guessedChar);
+                                }
+                                guessed.add(guessedChar);
+                                if (guessWord.indexOf("-") == -1) {
+                                    win = true;
+                                    System.out.println(ANSI_GREEN + "You Won!!!" + ANSI_RESET);
+                                    System.out.println("The word was: " + ANSI_PURPLE + guessWord + ANSI_RESET);
+                                }
+                            }
+                        }
                     }
                 }
 
-                /*user input*/
-                
-                
+                if (!win) {
+                    System.out.println(ANSI_RED + "You lost! Word was "+ word + ANSI_RESET);
+                }
+
+                System.out.println("Dou you want to play again? (Y/N)");
+                if (input.nextLine().trim().toUpperCase().equals("N")) {
+                    System.out.println(ANSI_BLUE + "Good Bye!" + ANSI_RESET);
+                    break;
+                }
+
             } catch (Exception ex) {
-                System.out.println("Exception: " + ex.getMessage());
+                Log.severe("Exception: " + ex.getMessage());
             }
         }
     }
 
+    /**
+     * Indexing the characters in word so that if user guesses the correct
+     * character we can directly replace the character in our guessWord string.
+     *
+     * @param word word characters to be indexed
+     * @return HashMap of character as key and ArrayList of indexes
+     */
+    private HashMap indexer(String word) {
+        HashMap<Character, ArrayList<Integer>> indexes = new HashMap<>();
+        for (int i = 0; i < word.length(); i++) {
+            if (indexes.containsKey(word.charAt(i))) {
+                indexes.get(word.charAt(i)).add(i);
+            } else {
+                ArrayList<Integer> temp = new ArrayList<>();
+                temp.add(i);
+                indexes.put(word.charAt(i), temp);
+            }
+        }
+        return indexes;
+    }
+
+    private void printInfo() {
+    }
+
     public static void main(String... args) {
-        run();
+        new HangmanPlay().play();
     }
 }
