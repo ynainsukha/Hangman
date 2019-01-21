@@ -3,10 +3,9 @@ package hangman;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+//TODO: add canvas graphics and score
 
 /**
  *
@@ -23,15 +22,20 @@ public class HangmanPlay {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
+    public static StringBuilder guessWord;
+    public static String wrongChars;
+    public static int tries=8;
+    
+    private static HangmanCanvas canvas;
     Logger Log = Logger.getLogger(HangmanPlay.class.getName());
+    String word;
+    
 
     void play() {
 
         System.out.println(ANSI_BLUE + "Welcome to Hangman!" + ANSI_RESET);
         HangmanLexicon mHangmanLexicon = new HangmanLexicon();
         Scanner input = new Scanner(System.in);
-        String word;
-        StringBuilder guessWord;
         HashMap<Character, ArrayList<Integer>> charIndex;
         ArrayList<Character> guessed = new ArrayList<>();
 
@@ -41,14 +45,20 @@ public class HangmanPlay {
                 word = mHangmanLexicon.getWord(new Random().nextInt(10));
                 //replace every character with "-"
                 guessWord = new StringBuilder(word.replaceAll(".", "-"));
-                int tries = 8;
-                charIndex = indexer(word);
+                tries = 8;
+                wrongChars = "";
+                charIndex = indexer();
                 guessed.clear();
                 /*user input*/
                 while (tries != 0 && !win) {
                     System.out.println("The word now looks like this: " + ANSI_PURPLE + guessWord + ANSI_RESET);
                     System.out.println("You have " + ANSI_BLUE + tries + ANSI_RESET + " left.");
                     System.out.println("Your guess? ");
+                    
+                    //draw word
+                    HangmanCanvas.task = 1;
+                    canvas.repaint();
+                    
                     //trim the leading and trailing spaces
                     String guess = input.nextLine().trim();
                     //check if user provided more then one character
@@ -58,6 +68,7 @@ public class HangmanPlay {
                         char guessedChar = guess.toUpperCase().charAt(0);
                         if (!charIndex.containsKey(guessedChar)) {
                             --tries;
+                            wrongChars += guessedChar;
                             System.out.println(ANSI_RED + "There are no " + guessedChar + "'s in word." + ANSI_RESET);
                         } else {
                             if (!guessed.contains(guessedChar)) {
@@ -76,13 +87,19 @@ public class HangmanPlay {
                 }
 
                 if (!win) {
-                    System.out.println(ANSI_RED + "You lost! Word was "+ word + ANSI_RESET);
+                    System.out.println(ANSI_RED + "You lost! Word was " + word + ANSI_RESET);
                 }
 
                 System.out.println("Dou you want to play again? (Y/N)");
+                guessWord = new StringBuilder("GAME OVER");
+                HangmanCanvas.task = 1;
+                canvas.repaint();
                 if (input.nextLine().trim().toUpperCase().equals("N")) {
                     System.out.println(ANSI_BLUE + "Good Bye!" + ANSI_RESET);
-                    break;
+                    System.exit(0);
+                }else{
+                    HangmanCanvas.task = 0;
+                    canvas.repaint();
                 }
 
             } catch (Exception ex) {
@@ -98,7 +115,7 @@ public class HangmanPlay {
      * @param word word characters to be indexed
      * @return HashMap of character as key and ArrayList of indexes
      */
-    private HashMap indexer(String word) {
+    private HashMap indexer() {
         HashMap<Character, ArrayList<Integer>> indexes = new HashMap<>();
         for (int i = 0; i < word.length(); i++) {
             if (indexes.containsKey(word.charAt(i))) {
@@ -112,10 +129,14 @@ public class HangmanPlay {
         return indexes;
     }
 
-    private void printInfo() {
+    public void init(HangmanPlay play) {
+        canvas = new HangmanCanvas();
+        canvas.setVisible(true);
+        play.play();
     }
 
     public static void main(String... args) {
-        new HangmanPlay().play();
+        HangmanPlay play = new HangmanPlay();
+        play.init(play);
     }
 }
