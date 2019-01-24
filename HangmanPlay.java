@@ -94,7 +94,7 @@ public class HangmanPlay {
                 guessWord = new StringBuilder("GAME OVER");
                 HangmanCanvas.task = 1;
                 canvas.repaint();
-                if (input.nextLine().trim().toUpperCase().equals("N")) {
+                if (input.nextLine().trim().equalsIgnoreCase("N")) {
                     System.out.println(ANSI_BLUE + "Good Bye!" + ANSI_RESET);
                     System.exit(0);
                 }else{
