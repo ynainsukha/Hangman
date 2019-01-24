@@ -62,7 +62,7 @@ public class HangmanCanvas extends Frame {
             g.drawString(HangmanPlay.wrongChars, 50, 600);
             switch (HangmanPlay.tries) {
                 case 0:
-                    //left foot
+                    //right foot
                     g.setColor(Color.DARK_GRAY);
                     g.drawLine(100 + BEAM_LENGTH + HIP_WIDTH, 150 + ROPE_LENGTH + HEAD_RADIUS * 2 + BODY_LENGTH + LEG_LENGTH, 100 + BEAM_LENGTH + HIP_WIDTH + FOOT_LENGTH, 150 + ROPE_LENGTH + HEAD_RADIUS * 2 + BODY_LENGTH + LEG_LENGTH);
                 case 1:
