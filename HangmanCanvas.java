@@ -54,10 +54,12 @@ public class HangmanCanvas extends Frame {
         g.drawLine(100, 150, 100 + BEAM_LENGTH, 150);
         g.drawLine(100 + BEAM_LENGTH, 150, 100 + BEAM_LENGTH, 150 + ROPE_LENGTH);
         if (task == 1) {
+            //tracking word changes after correct guess
             g.setColor(Color.MAGENTA);
             Font font = new Font("Serif", Font.PLAIN, 18);
             g.setFont(font);
             g.drawString(HangmanPlay.guessWord.toString(), 150, 550);
+            //tracking guessed wrong words
             g.setColor(Color.red);
             g.drawString(HangmanPlay.wrongChars, 50, 600);
             switch (HangmanPlay.tries) {
